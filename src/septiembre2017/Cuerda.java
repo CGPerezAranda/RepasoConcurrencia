@@ -9,7 +9,6 @@ public class Cuerda {
 		
 		private int enCuerda, enColaNorte, enColaSur;//numero de babuinos que quiere cruzar;
 		
-		private Semaphore mutex;
 		private Semaphore mutexNorte;
 		private Semaphore mutexSur;
 		private Semaphore cuerda;
@@ -79,8 +78,9 @@ public class Cuerda {
 //		cuerda.release();
 		//justa
 		if(enCuerda == 0) {
-			entraSur.release();
+
 			cuerda.release();
+			entraNorte.release();
 		}
 		//
 		mutexNorte.release();
@@ -103,8 +103,9 @@ public class Cuerda {
 //		cuerda.release();
 		//justa
 		if(enCuerda == 0) {
-			entraNorte.release();
+			
 			cuerda.release();
+			entraSur.release();
 		}
 		//
 		mutexSur.release();
