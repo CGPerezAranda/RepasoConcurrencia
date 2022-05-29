@@ -1,10 +1,22 @@
 package septiembre2018.monitoreslocks;
 
+import java.util.UnknownFormatFlagsException;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Parada {
 	
+	private Lock l = new ReentrantLock();
+	private int personasEnParada;
+	private Condition puedeSubir, cllegaBus;
+	private boolean haybus, llegaBus;
+	
 	
 	public Parada(){
+		personasEnParada = 0;
+		puedeSubir = l.newCondition();
+		cllegaBus = l.newCondition();
 		
 	}
 	/**
@@ -15,8 +27,25 @@ public class Parada {
 	 * 
 	 */
 	public int esperoBus(int id) throws InterruptedException{
+		int grupo = 0; //grupo 0 se sube en el autobús en cuanto abra la puerta, el 1 espera al siguiente
+		l.lock();
+		try {
+			System.out.println ("El pasajero "+id+ " llega a la parada");
+			while (haybus) 
+				puedeSubir.await();
+			
+			personasEnParada++;
+			System.out.println ("Hay "+ personasEnParada+" personas esperando el siguiente Bus");
+			cllegaBus.await();
+
+				
+		}
+			
+		finally {
+			l.unlock();
+		}
 		
-		return 0; //comentar esta línea
+		return personasEnParada; //comentar esta línea
 	}
 	/**
 	 * Una vez que ha llegado el autobús, el pasajero id que estaba
@@ -24,6 +53,21 @@ public class Parada {
 	 *
 	 */
 	public void subeAutobus(int id,int i){
+		l.lock();
+		try {
+			personasEnParada--;
+			System.out.println("El pasajero "+id+ " sube al autobus.");
+			
+			if(personasEnParada == 0) {
+				haybus = false;
+				puedeSubir.signalAll();
+				System.out.println("El bus se va");
+				llegaBus = false;				
+			}
+		}
+		finally {
+			l.unlock();
+		}
 		
 	}
 	/**
@@ -33,6 +77,15 @@ public class Parada {
 	 * 
 	 */
 	public void llegoParada() throws InterruptedException{
-		
+		l.lock();
+		try {
+			System.out.println ("Bus llega a la parada");
+			llegaBus = true;
+			haybus = true;
+			cllegaBus.signalAll();
+		}
+		finally {
+			l.unlock();
+		}
 	}
 }
