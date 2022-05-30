@@ -49,11 +49,15 @@ public class Mesa {
 			if(nRaciones == 0 && !llamadaPizzero) {
 				System.out.println("Sin pizza, llamando al pizzero");
 				llamadaPizzero = true;
-				pizzeroCocina.signal();				
+				pizzeroCocina.signal();		
+				//cuando pizza llega estudiante la paga
 				estudiantePaga.await();
 				pagada = true;
-				pizzeroReparte.signal();
+				//pizzeroReparte.signal();
 				estudiante.await();
+				//el estudiante que ha llamado y pagado la pizza coge un trozo
+				nRaciones--;
+				System.out.println("El estudiante "+id+" ha cogido una racion");
 			}else {
 				estudiante.await();
 			}
@@ -76,7 +80,12 @@ public class Mesa {
 
 			System.out.println ("Llamada recibida, preparando pizza");
 			pizzaEnDomicilio = true;
-			llamadaPizzero = false;
+			
+			//Mejor poner la llamada al pizzero al final del método para que no entren nuevas hebras estudiante que se encuentran sin pizza
+			//y llaman también al pizzero
+			//*******************
+			//llamadaPizzero = false;
+			//*******************
 			pizzeroReparte.signal();
 			System.out.println("El pizzero lleva una pizza");
 			estudiantePaga.signal();
@@ -104,7 +113,8 @@ public class Mesa {
 			nRaciones = 8;
 			pizzaEnDomicilio = false;
 			pagada = false;
-			estudiante.signalAll();		
+			estudiante.signalAll();	
+			llamadaPizzero = false;
 
 
 		}finally {
