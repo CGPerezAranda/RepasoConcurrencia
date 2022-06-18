@@ -1,4 +1,4 @@
-package septiembre2020;
+package septiembre2020.locks;
 
 
 public class Alumno extends Thread{
